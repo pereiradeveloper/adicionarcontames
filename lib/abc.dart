@@ -1,7 +1,8 @@
-import 'package:adicionarcontames/transaction.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+
+import 'transaction_dao.dart';
 
 class PieChartWidget extends StatefulWidget {
   final List<Transaction> transactions;

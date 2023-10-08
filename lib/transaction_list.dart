@@ -1,8 +1,9 @@
 import 'package:adicionarcontames/number_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:adicionarcontames/transaction.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+
+import 'transaction_dao.dart';
 
 class TransactionListScreen extends StatefulWidget {
   final List<Transaction> transactions;

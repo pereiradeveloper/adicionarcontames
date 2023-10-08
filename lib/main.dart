@@ -1,17 +1,23 @@
+import 'package:adicionarcontames/database.dart';
 import 'package:adicionarcontames/number_formatter.dart';
 import 'package:adicionarcontames/transaction_page.dart';
-import 'package:adicionarcontames/transaction.dart';
 import 'package:adicionarcontames/transaction_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
+import 'package:uuid/uuid.dart';
+
 import 'abc.dart';
+import 'transaction_dao.dart';
 
 // Importe a biblioteca para formatar datas
 
-void main() => runApp(const MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -44,6 +50,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final db = AppDatabase();
   int _currentIndex = 0;
   String selectedMonth = "Setembro";
   String selectedYear = "2023";
@@ -82,9 +89,16 @@ class _MyHomePageState extends State<MyHomePage> {
       '12': 'Dezembro',
     };
 
-    filteredTransactions = transactions.where((transaction) {
-      return mapping[transaction.month] == selectedMonth && transaction.year == selectedYear;
-    }).toList();
+    final stream = db.transactionDaoimpl.findAllByMonthAndYear(10, 2023);
+    stream.listen((event) {
+      filteredTransactions = event;
+      totalIncome = filteredTransactions.where((element) => element.type == TransactionType.income).fold(0.0, (sum, transaction) => sum + transaction.value);
+      totalExpenses = filteredTransactions.where((element) => element.type == TransactionType.expense).fold(0.0, (sum, transaction) => sum + transaction.value);
+      saldoPrevisto = totalIncome - totalExpenses;
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     // Calcula o total de renda e despesas
     totalIncome = filteredTransactions.where((element) => element.type == TransactionType.income).fold(0.0, (sum, transaction) => sum + transaction.value);
@@ -96,6 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void createTransaction(TransactionType type) {
     final newValue = Transaction(
+      id: const Uuid().v4(),
       value: 0,
       name: '',
       date: DateTime.now(),
@@ -103,21 +118,21 @@ class _MyHomePageState extends State<MyHomePage> {
       category: '',
     );
 
-    goToTransaction(newValue, (value) => transactions.add(value));
+    goToTransaction(newValue);
   }
 
   void editTransaction(int index, Transaction transaction) {
-    goToTransaction(transaction, (value) => transactions[index] = value);
+    goToTransaction(transaction);
   }
 
-  void goToTransaction(Transaction transaction, ValueSetter<Transaction> update) async {
+  void goToTransaction(Transaction transaction) async {
     final result = await Navigator.of(context).pushNamed("/transaction", arguments: transaction);
 
     if (result is! Transaction) {
       return;
     }
 
-    update(result);
+    await db.transactionDaoimpl.saveOrReplace(result);
 
     updateFilteredTransactions();
     _isExpanded = false;
@@ -127,12 +142,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // renda
-    //  filteredTransactions.where((element) => element.type == TransactionType.income).toList();
-
-    // despesa
-    // filteredTransactions.where((element) => element.type == TransactionType.expense).toList();
-
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,

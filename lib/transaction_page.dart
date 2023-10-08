@@ -1,11 +1,12 @@
+import 'package:adicionarcontames/database.dart';
 import 'package:adicionarcontames/number_formatter.dart';
 import 'package:adicionarcontames/validate_empty.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
-import 'transaction.dart';
+import 'transaction_dao.dart';
 
 class TransactionPage extends StatefulWidget {
   const TransactionPage({super.key});
@@ -58,6 +59,7 @@ class _TransactionPageState extends State<TransactionPage> {
     final value = valueController.numberValue;
 
     final transaction = Transaction(
+      id: initialValue?.id ?? const Uuid().v4(),
       type: type!,
       value: value,
       name: name,

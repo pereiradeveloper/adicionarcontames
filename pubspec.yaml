@@ -45,13 +45,19 @@ dependencies:
   fl_chart: ^0.63.0
   mask_text_input_formatter: ^2.5.0
   flutter_masked_text2: ^0.9.1
+  drift: ^2.12.1
+  sqlite3_flutter_libs: ^0.5.0
+  path: ^1.8.3
+  path_provider: ^2.1.1
+  uuid: ^4.1.0
   
-
-
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  json_serializable: ^6.6.1
+  drift_dev: ^2.12.1
+  build_runner: ^2.3.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
